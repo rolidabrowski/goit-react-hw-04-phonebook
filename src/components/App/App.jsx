@@ -1,98 +1,85 @@
 import css from './App.module.css';
-import { Component } from 'react';
+import { useState } from 'react';
 import { ContactForm } from '../ContactForm';
 import { ContactList } from '../ContactList';
 import { Filter } from '../Filter';
 import { nanoid } from 'nanoid';
 
-export class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  handleChange = event => {
-    const { name, value } = event.currentTarget;
-    this.setState({ [name]: value });
-  };
-
-  handleSubmit = event => {
+  const saveContact = event => {
     event.preventDefault();
     const form = event.currentTarget;
-    const { contacts } = this.state;
-    this.setState({ ...contacts });
-    this.saveContact();
-    form.reset();
-  };
-
-  handleSearch = event => {
-    this.setState({ filter: event.currentTarget.value.toLowerCase() });
-  };
-
-  saveContact = () => {
-    const { contacts } = this.state;
     const contact = {
       id: nanoid(),
-      name: this.state.name,
-      number: this.state.number,
+      name: form.elements.name.value,
+      number: form.elements.number.value,
     };
 
-    if (contacts.find(item => item.name === contact.name)) {
+    if (
+      contacts.find(
+        item => item.name === contact.name || item.number === contact.number
+      )
+    ) {
       alert(`${contact.name} is already in contacts`);
       return;
     }
-    contacts.push(contact);
-    localStorage.setItem('contacts', JSON.stringify(contacts));
+    setContacts([...contacts, contact]);
+    form.reset();
   };
 
-  showContacts = () => {
-    const { filter, contacts } = this.state;
+  const handleSearch = event => {
+    setFilter(event.currentTarget.value.toLowerCase());
+  };
+
+  const showContacts = () => {
     const normalizedFilter = filter.toLowerCase();
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizedFilter)
     );
   };
 
-  onRemove = contactId => {
-    this.setState(prevState => {
-      return {
-        contacts: prevState.contacts.filter(
-          contact => contact.id !== contactId
-        ),
-      };
+  const onRemove = contactId => {
+    setContacts(prevState => {
+      return prevState.filter(contact => contact.id !== contactId);
     });
-    this.removeToLocalStorage(contactId);
   };
 
-  removeToLocalStorage(contactId) {
-    const { contacts } = this.state;
-    let index = contacts.findIndex(item => item.id === contactId);
-    contacts.splice(index, 1);
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }
+  // onRemove = contactId => {
+  //   this.setState(prevState => {
+  //     return {
+  //       contacts: prevState.contacts.filter(
+  //         contact => contact.id !== contactId
+  //       ),
+  //     };
+  //   });
+  //   this.removeToLocalStorage(contactId);
+  // };
 
-  componentDidMount() {
-    const contactsFromLocalStorage = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contactsFromLocalStorage);
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-  }
+  // removeToLocalStorage(contactId) {
+  //   const { contacts } = this.state;
+  //   let index = contacts.findIndex(item => item.id === contactId);
+  //   contacts.splice(index, 1);
+  //   localStorage.setItem('contacts', JSON.stringify(contacts));
+  // }
 
-  render() {
-    const { filter } = this.state;
-    const visibleContacts = this.showContacts();
-    return (
-      <div>
-        <h1 className={css.title}>Phonebook</h1>
-        <ContactForm
-          onSubmit={this.handleSubmit}
-          onChange={this.handleChange}
-        />
-        <h2 className={css.title}>Contacts</h2>
-        <Filter value={filter} onChange={this.handleSearch} />
-        <ContactList contacts={visibleContacts} onRemove={this.onRemove} />
-      </div>
-    );
-  }
-}
+  // componentDidMount() {
+  //   const contactsFromLocalStorage = localStorage.getItem('contacts');
+  //   const parsedContacts = JSON.parse(contactsFromLocalStorage);
+  //   if (parsedContacts) {
+  //     this.setState({ contacts: parsedContacts });
+  //   }
+  // }
+
+  return (
+    <div>
+      <h1 className={css.title}>Phonebook</h1>
+      <ContactForm onSubmit={saveContact} />
+      <h2 className={css.title}>Contacts</h2>
+      <Filter value={filter} onChange={handleSearch} />
+      <ContactList contacts={showContacts()} onRemove={onRemove} />
+    </div>
+  );
+};
