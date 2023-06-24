@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { ContactForm } from '../ContactForm';
 import { ContactList } from '../ContactList';
 import { Filter } from '../Filter';
+import { useLocalStorage } from '../LocalStorage';
 import { nanoid } from 'nanoid';
 
 export const App = () => {
-  const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useLocalStorage('contacts', []);
   const [filter, setFilter] = useState('');
 
   const saveContact = event => {
@@ -46,32 +47,6 @@ export const App = () => {
       return prevState.filter(contact => contact.id !== contactId);
     });
   };
-
-  // onRemove = contactId => {
-  //   this.setState(prevState => {
-  //     return {
-  //       contacts: prevState.contacts.filter(
-  //         contact => contact.id !== contactId
-  //       ),
-  //     };
-  //   });
-  //   this.removeToLocalStorage(contactId);
-  // };
-
-  // removeToLocalStorage(contactId) {
-  //   const { contacts } = this.state;
-  //   let index = contacts.findIndex(item => item.id === contactId);
-  //   contacts.splice(index, 1);
-  //   localStorage.setItem('contacts', JSON.stringify(contacts));
-  // }
-
-  // componentDidMount() {
-  //   const contactsFromLocalStorage = localStorage.getItem('contacts');
-  //   const parsedContacts = JSON.parse(contactsFromLocalStorage);
-  //   if (parsedContacts) {
-  //     this.setState({ contacts: parsedContacts });
-  //   }
-  // }
 
   return (
     <div>
