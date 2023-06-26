@@ -5,14 +5,14 @@ export const ContactList = ({ contacts, onRemove }) => {
   return (
     <section className={css.list}>
       <ul>
-        {contacts.map(contact => (
-          <li className={css.item} key={contact.id}>
-            <span className={css.text}>{contact.name}</span>
-            <span className={css.text}>{contact.number}</span>
+        {contacts.map(({ id, name, number }) => (
+          <li className={css.item} key={id}>
+            <span className={css.text}>{name}</span>
+            <span className={css.text}>{number}</span>
             <button
               type="button"
               className={css.button}
-              onClick={() => onRemove(contact.id)}
+              onClick={() => onRemove(id)}
             >
               Delete
             </button>
@@ -24,6 +24,12 @@ export const ContactList = ({ contacts, onRemove }) => {
 };
 
 ContactList.propTypes = {
-  contacts: Proptypes.array.isRequired,
+  contacts: Proptypes.arrayOf(
+    Proptypes.shape({
+      id: Proptypes.string.isRequired,
+      name: Proptypes.string.isRequired,
+      number: Proptypes.string.isRequired,
+    })
+  ).isRequired,
   onRemove: Proptypes.func.isRequired,
 };
